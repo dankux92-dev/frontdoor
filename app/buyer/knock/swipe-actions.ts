@@ -122,6 +122,17 @@ export async function knockPropertyFromSaved(propertyId: string): Promise<void> 
   }
 }
 
+export async function knockFromDetail(propertyId: string): Promise<void> {
+  const result = await recordPropertyAction(propertyId, 'knocked')
+  if (result?.knockId) {
+    redirect(`/buyer/knock/${result.knockId}`)
+  } else {
+    redirect(
+      `/buyer/property/${propertyId}?error=${encodeURIComponent(result?.error ?? 'Failed to create knock. Please try again.')}`
+    )
+  }
+}
+
 export async function unarchiveProperty(propertyId: string): Promise<void> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

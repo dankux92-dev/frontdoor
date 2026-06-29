@@ -262,6 +262,17 @@ export function SwipeDeck({ properties }: { properties: SwipeProperty[] }) {
 
     const { x, y } = dragOffset
     const absX = Math.abs(x), absY = Math.abs(y)
+    const totalMovement = Math.sqrt(x * x + y * y)
+
+    // Tap: minimal movement — open property detail
+    if (totalMovement < 10) {
+      setDragOffset({ x: 0, y: 0 })
+      setPhase('idle')
+      if (deck.length > 0) {
+        router.push(`/buyer/property/${deck[0].id}`)
+      }
+      return
+    }
 
     let dir: 'left' | 'right' | 'up' | null = null
     if (y < -THRESHOLD && absY > absX) dir = 'up'

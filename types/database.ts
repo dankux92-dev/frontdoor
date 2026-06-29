@@ -265,6 +265,7 @@ export type Database = {
           property_type: 'house' | 'flat' | 'other'
           bedrooms: number
           description: string | null
+          property_images: string[]
           status: 'active' | 'sold' | 'let'
           created_at: string
         }
@@ -277,6 +278,7 @@ export type Database = {
           property_type: 'house' | 'flat' | 'other'
           bedrooms?: number
           description?: string | null
+          property_images?: string[]
           status?: 'active' | 'sold' | 'let'
           created_at?: string
         }
@@ -289,6 +291,7 @@ export type Database = {
           property_type?: 'house' | 'flat' | 'other'
           bedrooms?: number
           description?: string | null
+          property_images?: string[]
           status?: 'active' | 'sold' | 'let'
           created_at?: string
         }

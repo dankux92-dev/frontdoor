@@ -80,7 +80,7 @@ export default async function SearchPage({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {properties?.map(property => (
-            <div key={property.id} className="bg-white rounded-2xl overflow-hidden shadow-sm">
+            <Link key={property.id} href={`/buyer/property/${property.id}`} className="block bg-white rounded-2xl overflow-hidden shadow-sm active:scale-[0.98] transition-transform">
               <div className={`h-28 bg-gradient-to-br ${gradients[property.property_type as keyof typeof gradients] ?? gradients.other} flex items-center justify-center`}>
                 <span className="text-white/60 text-4xl">
                   {property.property_type === 'house' ? '🏡' : property.property_type === 'flat' ? '🏢' : '🏗️'}
@@ -97,7 +97,7 @@ export default async function SearchPage({
                   <p className="text-gray-500 text-xs mt-1.5 line-clamp-2">{property.description}</p>
                 )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
