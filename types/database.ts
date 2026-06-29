@@ -169,6 +169,7 @@ export type Database = {
           property_address: string
           property_postcode: string
           agent_id: string
+          property_id: string | null
           status: 'pending' | 'confirmed' | 'expired'
           knocked_at: string
           expires_at: string
@@ -181,6 +182,7 @@ export type Database = {
           property_address: string
           property_postcode: string
           agent_id: string
+          property_id?: string | null
           status?: 'pending' | 'confirmed' | 'expired'
           knocked_at?: string
           expires_at?: string
@@ -193,6 +195,7 @@ export type Database = {
           property_address?: string
           property_postcode?: string
           agent_id?: string
+          property_id?: string | null
           status?: 'pending' | 'confirmed' | 'expired'
           knocked_at?: string
           expires_at?: string
@@ -249,6 +252,69 @@ export type Database = {
           knock_id?: string
           outcome?: 'booked' | 'attended' | 'no_action'
           outcome_at?: string
+        }
+        Relationships: never[]
+      }
+      properties: {
+        Row: {
+          id: string
+          agent_id: string | null
+          address: string
+          postcode: string
+          price: number
+          property_type: 'house' | 'flat' | 'other'
+          bedrooms: number
+          description: string | null
+          status: 'active' | 'sold' | 'let'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          agent_id?: string | null
+          address: string
+          postcode: string
+          price: number
+          property_type: 'house' | 'flat' | 'other'
+          bedrooms?: number
+          description?: string | null
+          status?: 'active' | 'sold' | 'let'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          agent_id?: string | null
+          address?: string
+          postcode?: string
+          price?: number
+          property_type?: 'house' | 'flat' | 'other'
+          bedrooms?: number
+          description?: string | null
+          status?: 'active' | 'sold' | 'let'
+          created_at?: string
+        }
+        Relationships: never[]
+      }
+      buyer_property_actions: {
+        Row: {
+          id: string
+          profile_id: string
+          property_id: string
+          action: 'archived' | 'saved' | 'knocked'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          property_id: string
+          action: 'archived' | 'saved' | 'knocked'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          property_id?: string
+          action?: 'archived' | 'saved' | 'knocked'
+          created_at?: string
         }
         Relationships: never[]
       }

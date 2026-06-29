@@ -11,6 +11,7 @@ type Knock = {
   property_address: string
   property_postcode: string
   expires_at: string
+  confirmed_at?: string | null
 }
 
 function formatTime(ms: number) {
@@ -22,12 +23,11 @@ function formatTime(ms: number) {
   return [h, m, s].map(n => String(n).padStart(2, '0')).join(':')
 }
 
-export function KnockStatus({ knock }: { knock: Knock }) {
+export function KnockStatus({ knock, compact = false }: { knock: Knock; compact?: boolean }) {
   const router = useRouter()
   const [msLeft, setMsLeft] = useState(() => new Date(knock.expires_at).getTime() - Date.now())
   const [status, setStatus] = useState(knock.status)
 
-  // Countdown tick
   useEffect(() => {
     if (status !== 'pending') return
     const id = setInterval(() => {
@@ -41,17 +41,28 @@ export function KnockStatus({ knock }: { knock: Knock }) {
     return () => clearInterval(id)
   }, [knock.expires_at, status])
 
-  // Poll every 15 seconds to pick up agent confirmation
   useEffect(() => {
     if (status !== 'pending') return
     const id = setInterval(() => router.refresh(), 15_000)
     return () => clearInterval(id)
   }, [status, router])
 
-  // Sync if server refreshes the knock status
   useEffect(() => {
     setStatus(knock.status)
   }, [knock.status])
+
+  // Compact mode: just the countdown for embedding in lists
+  if (compact) {
+    if (status !== 'pending') return null
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-400">Waiting for agent · </span>
+        <span className="font-mono font-bold tabular-nums text-sm" style={{ color: '#3A7068' }}>
+          {formatTime(msLeft)}
+        </span>
+      </div>
+    )
+  }
 
   if (status === 'confirmed') {
     return (
@@ -65,14 +76,10 @@ export function KnockStatus({ knock }: { knock: Knock }) {
             <strong>{knock.property_address}</strong>.
           </p>
           <p className="text-green-600">
-            They&apos;ll be in touch shortly to arrange a time. Your intent score has been
-            updated.
+            They&apos;ll be in touch shortly to arrange a time. Your intent score has been updated.
           </p>
-          <Link
-            href="/buyer/dashboard"
-            className="inline-block font-medium underline underline-offset-2 hover:text-green-900"
-          >
-            Back to dashboard
+          <Link href="/buyer/knocked" className="inline-block font-medium underline underline-offset-2 hover:text-green-900">
+            Back to knocked
           </Link>
         </CardContent>
       </Card>
@@ -91,21 +98,14 @@ export function KnockStatus({ knock }: { knock: Knock }) {
             <strong>{knock.property_address}</strong> within 2 hours.
           </p>
           <p className="text-gray-400">
-            This sometimes happens when agents are busy. Try knocking again or search for
-            another property.
+            This sometimes happens when agents are busy. Try knocking again or search for another property.
           </p>
           <div className="flex gap-3 pt-1">
-            <Link
-              href="/buyer/knock/new"
-              className="text-blue-600 font-medium hover:text-blue-800 underline underline-offset-2"
-            >
+            <Link href="/buyer/knock" className="font-medium underline underline-offset-2" style={{ color: '#3A7068' }}>
               Knock again
             </Link>
-            <Link
-              href="/buyer/dashboard"
-              className="text-gray-500 font-medium hover:text-gray-700 underline underline-offset-2"
-            >
-              Back to dashboard
+            <Link href="/buyer/knocked" className="text-gray-500 font-medium hover:text-gray-700 underline underline-offset-2">
+              All knocks
             </Link>
           </div>
         </CardContent>
@@ -113,7 +113,7 @@ export function KnockStatus({ knock }: { knock: Knock }) {
     )
   }
 
-  // pending
+  // pending — full view
   return (
     <Card>
       <CardHeader>
@@ -122,7 +122,7 @@ export function KnockStatus({ knock }: { knock: Knock }) {
       <CardContent className="space-y-4">
         <div className="rounded-xl bg-gray-50 border border-gray-100 px-5 py-4 text-center">
           <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Time remaining</p>
-          <p className="text-5xl font-mono font-bold text-gray-900 tabular-nums">
+          <p className="text-5xl font-mono font-bold tabular-nums" style={{ color: '#3A7068' }}>
             {formatTime(msLeft)}
           </p>
           <p className="text-xs text-gray-400 mt-2">
@@ -131,26 +131,16 @@ export function KnockStatus({ knock }: { knock: Knock }) {
         </div>
 
         <div className="text-sm text-gray-600 space-y-1">
-          <p>
-            <span className="text-gray-400 w-20 inline-block">Property</span>
-            {knock.property_address}
-          </p>
-          <p>
-            <span className="text-gray-400 w-20 inline-block">Postcode</span>
-            {knock.property_postcode}
-          </p>
+          <p><span className="text-gray-400 w-20 inline-block">Property</span>{knock.property_address}</p>
+          <p><span className="text-gray-400 w-20 inline-block">Postcode</span>{knock.property_postcode}</p>
         </div>
 
         <p className="text-xs text-gray-400">
-          This page refreshes automatically. You&apos;ll see confirmation here as soon as the
-          agent responds.
+          This page refreshes automatically. You&apos;ll see confirmation here as soon as the agent responds.
         </p>
 
-        <Link
-          href="/buyer/dashboard"
-          className="text-sm text-gray-500 hover:text-gray-800 underline underline-offset-2"
-        >
-          ← Back to dashboard
+        <Link href="/buyer/knocked" className="text-sm text-gray-500 hover:text-gray-800 underline underline-offset-2">
+          ← All knocks
         </Link>
       </CardContent>
     </Card>

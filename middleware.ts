@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
   if (user && (pathname === '/login' || pathname === '/signup')) {
     const role = user.user_metadata?.role
     return NextResponse.redirect(
-      new URL(role === 'agent' ? '/agent/dashboard' : '/buyer/dashboard', request.url)
+      new URL(role === 'agent' ? '/agent/dashboard' : '/buyer/knock', request.url)
     )
   }
 

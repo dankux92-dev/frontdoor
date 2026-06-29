@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { logActivity } from '@/lib/scoring/recompute'
+import { BuyerBottomNav } from '@/components/buyer-bottom-nav'
 
 export default async function BuyerLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -16,8 +17,12 @@ export default async function BuyerLayout({ children }: { children: React.ReactN
 
   if (profile?.role === 'agent') redirect('/agent/dashboard')
 
-  // Log today as an active day for the activity streak
   await logActivity(user.id)
 
-  return <>{children}</>
+  return (
+    <div className="flex flex-col min-h-dvh" style={{ backgroundColor: '#F5F0E8' }}>
+      <main className="flex-1 flex flex-col pb-16">{children}</main>
+      <BuyerBottomNav />
+    </div>
+  )
 }
