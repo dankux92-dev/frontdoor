@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/expire-knocks",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/viewing-outcomes",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}
