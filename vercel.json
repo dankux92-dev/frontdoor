@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/expire-knocks",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/cron/viewing-outcomes",
