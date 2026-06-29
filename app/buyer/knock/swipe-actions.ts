@@ -12,7 +12,7 @@ function outwardCode(postcode: string) {
 export async function recordPropertyAction(
   propertyId: string,
   action: 'archived' | 'saved' | 'knocked'
-): Promise<{ knockId?: string; error?: string } | null> {
+): Promise<{ knockId?: string; needsVerification?: boolean; error?: string } | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -100,7 +100,17 @@ export async function recordPropertyAction(
     console.error('[swipe-knock] alert email failed:', err)
   }
 
-  return { knockId: knock.id }
+  // Check if buyer is missing ID or documents — used to prompt them post-knock
+  const { data: scoreRow } = await admin
+    .from('intent_scores')
+    .select('signals')
+    .eq('profile_id', user.id)
+    .maybeSingle()
+
+  const signals = (scoreRow?.signals ?? {}) as Record<string, unknown>
+  const needsVerification = !signals.id_verified || !signals.documents_uploaded
+
+  return { knockId: knock.id, needsVerification }
 }
 
 export async function knockPropertyFromSaved(propertyId: string): Promise<void> {

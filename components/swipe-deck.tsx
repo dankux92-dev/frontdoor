@@ -174,6 +174,62 @@ function PropertyCard({
 
 type Phase = 'idle' | 'dragging' | 'springing' | 'exiting'
 
+function VerificationPrompt({
+  knockId,
+  onDismiss,
+}: {
+  knockId: string
+  onDismiss: () => void
+}) {
+  const router = useRouter()
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}>
+      <div
+        className="w-full max-w-md rounded-t-3xl px-6 pt-6 pb-10 shadow-2xl"
+        style={{ backgroundColor: '#F5F0E8' }}
+      >
+        {/* Handle */}
+        <div className="w-10 h-1 rounded-full bg-gray-300 mx-auto mb-5" />
+
+        {/* Icon */}
+        <div
+          className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+          style={{ backgroundColor: '#3A7068' }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+
+        <h2 className="text-xl font-extrabold text-gray-900 mb-2">Boost your chances</h2>
+        <p className="text-gray-600 text-sm leading-relaxed mb-6">
+          Agents prioritise verified buyers. Uploading your proof of funds and completing ID verification can significantly increase your chances of hearing back.
+        </p>
+
+        <button
+          onClick={() => router.push('/buyer/profile')}
+          className="w-full py-3.5 rounded-2xl font-bold text-white text-sm mb-3 transition-opacity active:opacity-80"
+          style={{ backgroundColor: '#3A7068' }}
+        >
+          Complete verification →
+        </button>
+
+        <button
+          onClick={() => {
+            onDismiss()
+            router.push(`/buyer/knock/${knockId}`)
+          }}
+          className="w-full py-3 rounded-2xl font-semibold text-sm transition-colors"
+          style={{ color: '#3A7068', backgroundColor: 'transparent' }}
+        >
+          View knock status
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function SwipeDeck({ properties }: { properties: SwipeProperty[] }) {
   const router = useRouter()
   const [deck, setDeck] = useState(properties)
@@ -181,6 +237,7 @@ export function SwipeDeck({ properties }: { properties: SwipeProperty[] }) {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [exitOffset, setExitOffset] = useState({ x: 0, y: 0 })
   const [error, setError] = useState<string | null>(null)
+  const [verificationPrompt, setVerificationPrompt] = useState<string | null>(null) // knockId
   const dragStart = useRef({ x: 0, y: 0 })
   const actionInFlight = useRef(false)
 
@@ -242,7 +299,11 @@ export function SwipeDeck({ properties }: { properties: SwipeProperty[] }) {
         if (result?.error) {
           setError(result.error)
         } else if (result?.knockId) {
-          router.push(`/buyer/knock/${result.knockId}`)
+          if (result.needsVerification) {
+            setVerificationPrompt(result.knockId)
+          } else {
+            router.push(`/buyer/knock/${result.knockId}`)
+          }
         }
       } finally {
         actionInFlight.current = false
@@ -286,6 +347,14 @@ export function SwipeDeck({ properties }: { properties: SwipeProperty[] }) {
             </svg>
           </button>
         </div>
+      )}
+
+      {/* Verification prompt modal */}
+      {verificationPrompt && (
+        <VerificationPrompt
+          knockId={verificationPrompt}
+          onDismiss={() => setVerificationPrompt(null)}
+        />
       )}
 
       {/* Card stack */}
